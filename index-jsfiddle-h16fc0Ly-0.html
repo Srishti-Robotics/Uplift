@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JSFiddle h16fc0Ly</title>
+
+  <style>
+    body {
+  font-family: "Segoe UI", sans-serif;
+  text-align: center;
+  padding: 40px;
+  background-color: #c5e3ff;
+}
+h1 {
+  color: #333;
+}
+p {
+  font-family: 'Times New Roman', Times, serif;
+}
+
+#mood-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.mood-buttons button {
+  font-size: 26px;
+  padding: 10px 18px;
+  margin: 10px;
+  border-radius: 12px;
+  box-shadow: 2px 5px;
+  border: darkslateblue;
+  cursor: pointer;
+}
+
+#quote {
+  margin-top: 30px;
+  font-size: 18px;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-style: italic;
+  color: #444;
+}
+
+#history {
+  margin-top: 40px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+#history h2 {
+  color: #333;
+}
+
+#history ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+#history li {
+  background: #e3f2fd;
+  margin-bottom: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 16px;
+}
+  </style>
+
+  
+</head>
+<body>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<p>꧁𝔂𝓸𝓾𝓻 𝓶𝓸𝓸𝓭 — 𝓷𝓸 𝓻𝓾𝓼𝓱, 𝓳𝓾𝓼𝓽 𝓽𝓻𝓾𝓽𝓱꧂</p>
+
+<div class="mood-buttons">
+  <button onclick="showQuote('happy')">😊</button>
+  <button onclick="showQuote('sad')">😭</button>
+  <button onclick="showQuote('angry')">🤬</button>
+  <button onclick="showQuote('meh')">😐</button>
+  <button onclick="showQuote('overwhelmed')">🤯</button>
+  <button onclick="showQuote('embarrassed')">😶‍🌫️</button>
+  <button onclick="showQuote('sick')">😖</button>
+</div>
+
+<div id="quote"></div>
+
+<div id="history">
+  <h2>Your Recent Moods & Quotes</h2>
+<ul id="entries-list"></ul>
+</div>
+
+
+
+  <script>
+    const quotes = {
+  happy: [
+    "Joy is not in things; it is in us. – Richard Wagner",
+    "Happiness is a direction, not a place. – Sydney J. Harris",
+    "I will no longer allow the negative things in my lie to spoil all of the GOOD things I have. I choose to be HAPPY."
+  ],
+  sad: [
+    "Tears come from the heart and not from the brain. – Leonardo da Vinci",
+    "Sometimes, we just need to let the sadness sit with us.",
+    "Things change. And friends leave. Life doesn't stop for anybody. - Stephen Chbosky"
+  ],
+  angry: [
+    "Speak when you are angry and you’ll make the best speech you’ll ever regret. – Ambrose Bierce",
+    "Anger is just sadness in armor.",
+    "FORGIVE people in your life, even those who are not sorry for their actions. HOLDING ON TO ANGER HURTS YOU, not them."
+  ],
+  meh: [
+    "Sometimes not feeling is the best way to feel something.",
+    "It's okay to have neutral days. Rest is productive too.",
+    "When you've been sad for so long that when something bad happens you don't cry, you just sit there and feel numb."
+  ],
+  overwhelmed: [
+    "You don’t have to control your thoughts. You just have to stop letting them control you. – Dan Millman",
+    "One breath at a time. You’re doing better than you think.",
+    "Life has many ways of testing a person's will, either by having NOTHING happen at all or by having EVERYTHING happen at once."
+  ],
+  embarrassed: [
+    "Do not be embarrassed by your failures, learn from them and start again. - Richard Branson.",
+    "I don't have to hide or be somebody I'm not. I don't have to compromise. I can just be myself. - Cory Monteith",
+    "You can hide yourself from others, but you can't hide from yourself. - Meite"
+  ],
+  sick: [
+    "Being sick is just your body's way of saying your way too awesome, and you need to slow down, so everyone else can catch up.",
+    "God gives his hardest battles to his toughest soldiers.",
+    "Tis healthy to be sick sometimes. - Henry David Thoreau"
+  ]
+};
+
+// Load saved entries or empty array
+let entries = JSON.parse(localStorage.getItem('entries')) || [];
+
+// Save a new entry
+function saveEntry(mood, quote, journalText) {
+  if (!mood || !quote) {
+    alert("Please select a mood and generate a quote first.");
+    return;
+  }
+  if (!journalText.trim()) {
+    alert("Please write a journal entry.");
+    return;
+  }
+
+  const now = new Date();
+  const entry = {
+    mood,
+    quote,
+    journal: journalText.trim(),
+    timestamp: now.toISOString()
+  };
+
+  entries.unshift(entry);  // newest first
+  localStorage.setItem('entries', JSON.stringify(entries));
+  renderEntries();
+  alert("Entry saved!");
+}
+
+// Render all entries
+function renderEntries() {
+  const list = document.getElementById('entries-list');
+  list.innerHTML = '';
+
+  if (entries.length === 0) {
+    list.innerHTML = "<p>No entries yet.</p>";
+    return;
+  }
+
+  entries.forEach(e => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <strong>${capitalize(e.mood)} — ${new Date(e.timestamp).toLocaleString()}</strong><br/>
+      "${e.quote}"<br/>
+      <em>Journal:</em> ${escapeHtml(e.journal)}
+    `;
+    list.appendChild(li);
+  });
+}
+
+// Utility: Capitalize first letter
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// Utility: escape HTML to avoid injection (basic)
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+saveEntry(currentMood, currentQuote, document.getElementById('journal-input').value);
+
+
+
+
+  </script>
+</body>
+</html>
